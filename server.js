@@ -7,9 +7,30 @@ const path = require('path');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
-// โหลดการตั้งค่าจากไฟล์ config.json
-const config = require('./config.json');
+const app = express();
+// ใช้ PORT จาก Environment Variable (สำหรับ Fly.io) หรือ 3000 เป็นค่าเริ่มต้น
+const PORT = process.env.PORT || 3000;
 
+// โหลดการตั้งค่า (ลองจาก Env ก่อน ถ้าไม่มีค่อยไปไฟล์ config.json)
+let config;
+try {
+    config = require('./config.json');
+} catch (e) {
+    console.warn('⚠️ Warning: config.json not found, using Environment Variables for SMTP');
+    config = {
+        smtp: {
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT,
+            secure: process.env.SMTP_SECURE === 'true',
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS
+        },
+        email: {
+            from: process.env.EMAIL_FROM,
+            resetSubject: process.env.EMAIL_RESET_SUBJECT
+        }
+    };
+}
 // -------------------------------------------------------------------
 // ตั้งค่าอีเมลสำหรับส่งลิงก์รีเซ็ตรหัสผ่าน โดยใช้ค่าจาก config.json
 // -------------------------------------------------------------------
@@ -26,8 +47,6 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-const app = express();
-const PORT = 3000;
 const SECRET_KEY = 'punya-clinic-super-secret-key';
 // รองรับ DATA_DIR environment variable เพื่อใช้กับ Fly.io Volume ป้องกันข้อมูลหาย
 const DATA_DIR = process.env.DATA_DIR || __dirname;
@@ -394,6 +413,6 @@ app.post('/api/test-smtp', async (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on http://0.0.0.0:${PORT}`);
 });
