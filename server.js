@@ -8,8 +8,8 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
 const app = express();
-// ใช้ PORT จาก Environment Variable (สำหรับ Fly.io) หรือ 3000 เป็นค่าเริ่มต้น
-const PORT = process.env.PORT || 3000;
+// Fly.io มักจะใช้ port 8080 เป็นมาตรฐานครับ
+const PORT = process.env.PORT || 8080;
 
 // โหลดการตั้งค่า (ลองจาก Env ก่อน ถ้าไม่มีค่อยไปไฟล์ config.json)
 let config;
@@ -19,15 +19,15 @@ try {
     console.warn('⚠️ Warning: config.json not found, using Environment Variables for SMTP');
     config = {
         smtp: {
-            host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT,
+            host: process.env.SMTP_HOST || '',
+            port: process.env.SMTP_PORT || 587,
             secure: process.env.SMTP_SECURE === 'true',
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS
+            user: process.env.SMTP_USER || '',
+            pass: process.env.SMTP_PASS || ''
         },
         email: {
-            from: process.env.EMAIL_FROM,
-            resetSubject: process.env.EMAIL_RESET_SUBJECT
+            from: process.env.EMAIL_FROM || '',
+            resetSubject: process.env.EMAIL_RESET_SUBJECT || 'Reset Password'
         }
     };
 }
