@@ -1,10 +1,5 @@
-# fly.toml app configuration file generated for panya-watch on 2026-03-25T14:28:04Z
-#
-# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
-
 app = 'panya-watch'
-primary_region = 'ams'
+primary_region = 'sin'
 
 [build]
 
