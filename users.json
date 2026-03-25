@@ -1,0 +1,32 @@
+[
+  {
+    "id": "admin-001",
+    "email": "tanakon7572@gmail.com",
+    "name": "Tanakon (Admin)",
+    "username": "tanakon7572",
+    "password": "$2b$10$tgo9h2giYlUuqTv55EU69.0OtpUAAnf5IRLFf.alC100G0ZpEL/oi",
+    "permissions": [
+      "payment",
+      "shop",
+      "admin"
+    ]
+  },
+  {
+    "id": "1774428603377",
+    "name": "tanakon",
+    "username": "admin",
+    "password": "$2b$10$3mEmGK1vn/ElThrlBDTSbOlFU6p8UFQzlRJwWRevQi.jgyQ/Z9k.O"
+  },
+  {
+    "id": "1774429878204",
+    "name": "tanakon treetosspol",
+    "username": "tanakon",
+    "password": "$2b$10$VG0Ozah8IENaiGkvg7yIF.4HtzoEkMuwr86SdsO5wx5lHtqJusvFO"
+  },
+  {
+    "id": "17744298787757",
+    "name": "tanakon treetosspol",
+    "username": "tanakon2",
+    "password": "$2a$12$Jy7LauLZK2EpbVDAbYcG7.464ES0rIkN6csN9MoAIiF8NUspnZ/lG"
+  }
+]

@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Kanit', sans-serif;
+    background-color: #f8f9fa;
+}
+
+.text-gold {
+    color: #B8860B !important;
+}
+
+.bg-gold {
+    background-color: #B8860B !important;
+}
+
+.hover-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.hover-step {
+    transition: all 0.3s ease;
+}
+
+.hover-step:hover {
+    transform: translateY(-5px);
+    border-color: #B8860B !important;
+}
+
+/* Navbar theme */
+.custom-navbar {
+    background-color: #212529 !important;
+}
+
+/* Remove hamburger menu focus ring */
+.navbar-toggler:focus,
+.navbar-toggler:active {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Service Cards Theme (สร้างกรอบสีทองและมุมโค้งมน) */
+.service-card {
+    border: 1.5px solid #B8860B !important;
+    border-radius: 16px !important;
+    background-color: #fff !important;
+}
+
+.service-card .card-body {
+    padding: 0.5rem;
+}

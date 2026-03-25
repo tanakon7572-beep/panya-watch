@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการหลังบ้าน (Admin Dashboard)</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #f4f6f9;
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            background-color: #212529;
+            color: white;
+            padding-top: 20px;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, .8);
+            font-weight: 500;
+            padding: 12px 20px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+        }
+
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background-color: #B8860B;
+            color: white;
+        }
+
+        .sidebar i {
+            width: 25px;
+            text-align: center;
+            margin-right: 10px;
+        }
+
+        .dashboard-card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .text-gold {
+            color: #B8860B;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script>
+        // Check Admin Auth Status immediately
+        const token = localStorage.getItem('token');
+        const userStr = localStorage.getItem('user');
+
+        if (!token || !userStr) {
+            window.location.href = 'login.html'; // เตะกลับถ้ายังไม่ได้ล็อกอิน
+        } else {
+            const user = JSON.parse(userStr);
+            const perms = user.permissions || [];
+            if (!perms.includes('admin')) {
+                alert('คุณไม่มีสิทธิ์เข้าถึงหน้านี้ (เฉพาะ Admin)');
+                window.location.href = 'index.html'; // เตะกลับคนทั่วไป
+            }
+        }
+    </script>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse px-3">
+                <div class="text-center mb-4">
+                    <h4 class="fw-bold text-white"><i class="fa-solid fa-clock text-gold"></i> Punya Admin</h4>
+                </div>
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#"><i class="fa-solid fa-chart-pie"></i> แดชบอร์ด</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fa-solid fa-users"></i> จัดการฐานลูกค้า</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fa-solid fa-screwdriver-wrench"></i>
+                                บันทึกงานซ่อม</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fa-solid fa-money-bill-wave"></i> ตรวจสอบยอดชำระ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-info" href="smtp-test.html" target="_blank"><i
+                                    class="fa-solid fa-envelope-circle-check"></i> ระบบทดสอบ SMTP</a>
+                        </li>
+                        <li class="nav-item mt-5">
+                            <a class="nav-link text-danger" href="#" onclick="logout()"><i
+                                    class="fa-solid fa-arrow-right-from-bracket"></i> ออกจากระบบ</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-5 py-4">
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                    <h1 class="h2 fw-bold">หน้าแดชบอร์ดสรุปผล</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cards -->
+                <div class="row g-4 mb-5">
+                    <div class="col-md-4">
+                        <div class="card dashboard-card p-4">
+                            <h5 class="text-muted fw-semibold">สมาชิกลูกค้าทั้งหมด</h5>
+                            <h2 class="fw-bold mb-0 text-dark" id="totalUsersCount">--</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card dashboard-card p-4">
+                            <h5 class="text-muted fw-semibold">งานซ่อมรอดำเนินการ</h5>
+                            <h2 class="fw-bold mb-0 text-warning">0 <span
+                                    class="fs-6 fw-normal text-muted">รายการ</span></h2>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card dashboard-card p-4">
+                            <h5 class="text-muted fw-semibold">รายได้เดือนนี้</h5>
+                            <h2 class="fw-bold mb-0 text-success">0 <span class="fs-6 fw-normal text-muted">บาท</span>
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <h4 class="fw-bold mb-3">รายชื่อลูกค้าล่าสุด</h4>
+                <div class="table-responsive bg-white p-3 rounded-4 shadow-sm">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">ID / Date</th>
+                                <th scope="col">ชื่อ - นามสกุล</th>
+                                <th scope="col">อีเมล</th>
+                                <th scope="col">Username</th>
+                                <th scope="col">สิทธิ์ใช้งาน</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">กำลังโหลดข้อมูล...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function fetchUsers() {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch('/api/admin/users', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('totalUsersCount').textContent = `${data.users.length} คน`;
+
+                    const tbody = document.getElementById('userTableBody');
+                    tbody.innerHTML = '';
+
+                    data.users.forEach(u => {
+                        const tr = document.createElement('tr');
+
+                        // สร้าง label สีสิทธิ์การใช้งาน
+                        const roles = u.permissions.map(p => {
+                            if (p === 'admin') return `<span class="badge bg-danger">แอดมิน</span>`;
+                            if (p === 'payment') return `<span class="badge bg-success">ชำระเงิน</span>`;
+                            if (p === 'shop') return `<span class="badge bg-primary">ซื้อสินค้า</span>`;
+                            return `<span class="badge bg-secondary">${p}</span>`;
+                        }).join(' ');
+
+                        // ถ้าไม่มีสิทธิ์เลย ให้ขึ้นว่าทั่วไป
+                        const roleHtml = roles || `<span class="badge bg-secondary">สมาชิกลูกค้าทั่วไป</span>`;
+
+                        tr.innerHTML = `
+                            <td class="text-muted" style="font-size: 0.85rem">${u.id}</td>
+                            <td class="fw-medium">${u.name}</td>
+                            <td>${u.email || '-'}</td>
+                            <td>${u.username}</td>
+                            <td>${roleHtml}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    alert('ดึงข้อมูลไม่ได้ Session อาจหมดอายุ หรือไม่มีสิทธิ์แอดมิน');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchUsers);
+
+        async function logout() {
+            try { await fetch('/api/logout', { method: 'POST' }); } catch (e) { }
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>

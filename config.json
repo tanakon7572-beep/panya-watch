@@ -1,0 +1,15 @@
+{
+    "smtp": {
+        "host": "smtp.taximail.com",
+        "port": 587,
+        "secure": false,
+        "user": "sm2516501",
+        "pass": "HU3zcqpxY6nRCPT"
+    },
+    "email": {
+        "from": "tanakon@rextanakon.online",
+        "resetSubject": "ลิงก์สำหรับตั้งรหัสผ่านใหม่ (Reset Password)",
+        "template_key": "",
+        "transactional_group": "Email-Forgot-Password"
+    }
+}

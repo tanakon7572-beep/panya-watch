@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="th">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Taximail Template Trigger — Node.js Version</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f4f6f9;
+            font-family: 'Kanit', sans-serif;
+        }
+
+        .config-card {
+            background: #fff;
+            padding: 18px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-bottom: 16px;
+        }
+
+        pre.debug {
+            background: #0b1220;
+            color: #d6f3ff;
+            padding: 12px;
+            border-radius: 6px;
+            max-height: 420px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .btn-gold {
+            background-color: #B8860B;
+            color: #fff;
+            border: none;
+        }
+
+        .btn-gold:hover {
+            background-color: #9b6f04;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h3 class="mb-3 fw-bold">Node.js SMTP / Taximail Test</h3>
+
+                <div id="message_status"></div>
+
+                <form id="smtpTestForm">
+                    <div class="config-card mb-3">
+                        <h6 class="fw-bold">⚙️ SMTP</h6>
+                        <div class="row g-2">
+                            <div class="col-md-6"><label class="form-label">Host</label><input
+                                    class="form-control form-control-sm" id="smtp_host" value="smtp.taximail.com"
+                                    required></div>
+                            <div class="col-md-6"><label class="form-label">Port</label><input type="number"
+                                    class="form-control form-control-sm" id="smtp_port" value="587" required></div>
+                            <div class="col-md-6"><label class="form-label">User</label><input
+                                    class="form-control form-control-sm" id="smtp_user" value="sm2516501" required>
+                            </div>
+                            <div class="col-md-6"><label class="form-label">Pass</label><input type="password"
+                                    class="form-control form-control-sm" id="smtp_pass" required></div>
+                        </div>
+                    </div>
+
+                    <div class="config-card mb-3">
+                        <h6 class="fw-bold">🔧 Connection Options</h6>
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-6">
+                                <label class="form-label">Test only</label>
+                                <select class="form-select form-select-sm" id="test_connection">
+                                    <option value="0">Send email</option>
+                                    <option value="1">Test connect only</option>
+                                </select>
+                                <div class="form-text">เลือกเพื่อทดสอบการเชื่อมต่อโดยไม่ต้องส่งเมล</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Timeout (ms)</label>
+                                <input type="number" class="form-control form-control-sm" id="timeout" min="1000"
+                                    value="10000">
+                            </div>
+                        </div>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="tls_rejectUnauthorized" checked>
+                            <label class="form-check-label" for="tls_rejectUnauthorized">ตรวจสอบใบรับรอง SSL
+                                (เอาติ๊กออกหากทดสอบระบบเก่า)</label>
+                        </div>
+                    </div>
+
+                    <div class="config-card">
+                        <h6 class="fw-bold">🔑 Template & Message</h6>
+                        <div class="mb-2"><label class="form-label">Template Key</label><input class="form-control"
+                                id="template_key" placeholder="12185cf4e8d27df67"></div>
+                        <div class="mb-2"><label class="form-label">Transaction Group</label><input class="form-control"
+                                id="transactional_group" placeholder="Email-Welcome"></div>
+
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-6"><label class="form-label">From Email</label><input
+                                    class="form-control" id="from_email" value="tanakon@rextanakon.online" required>
+                            </div>
+                            <div class="col-md-6"><label class="form-label">To Email</label><input class="form-control"
+                                    id="to_email" value="test@example.com" required></div>
+                        </div>
+
+                        <div class="mb-2"><label class="form-label">Subject (fallback)</label><input
+                                class="form-control" id="subject_input" value="Test subject"></div>
+                        <div class="mb-2"><label class="form-label">HTML message (optional)</label><textarea
+                                class="form-control" id="content_html" rows="4"></textarea></div>
+                        <div class="mb-2"><label class="form-label">Plain message (optional)</label><textarea
+                                class="form-control" id="content_plain" rows="2"></textarea></div>
+
+                        <button class="btn btn-gold w-100 fw-bold fs-5 mt-3 py-2" type="submit" id="submitBtn">🚀 Send /
+                            Test</button>
+                    </div>
+                </form>
+
+                <div class="config-card mt-3">
+                    <h6 class="fw-bold">🐞 Debug Output (captured)</h6>
+                    <p class="text-muted">รายละเอียดการเชื่อมต่อ SMTP และข้อผิดพลาด — ใช้สำหรับ debug (Nodemailer
+                        Logger)</p>
+                    <pre class="debug" id="debug_log"></pre>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('smtpTestForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            const statusDiv = document.getElementById('message_status');
+            const debugLog = document.getElementById('debug_log');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Processing...';
+            statusDiv.innerHTML = '';
+            debugLog.textContent = 'Loading...';
+
+            const payload = {
+                smtp_host: document.getElementById('smtp_host').value,
+                smtp_port: parseInt(document.getElementById('smtp_port').value),
+                smtp_user: document.getElementById('smtp_user').value,
+                smtp_pass: document.getElementById('smtp_pass').value,
+                test_connection_only: document.getElementById('test_connection').value === '1',
+                timeout: parseInt(document.getElementById('timeout').value),
+                tls_rejectUnauthorized: document.getElementById('tls_rejectUnauthorized').checked,
+                template_key: document.getElementById('template_key').value,
+                transactional_group: document.getElementById('transactional_group').value,
+                from_email: document.getElementById('from_email').value,
+                to_email: document.getElementById('to_email').value,
+                subject_input: document.getElementById('subject_input').value,
+                content_html: document.getElementById('content_html').value,
+                content_plain: document.getElementById('content_plain').value
+            };
+
+            try {
+                const token = localStorage.getItem('token') || '';
+                const res = await fetch('/api/test-smtp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                // Render Status Notification
+                if (data.success) {
+                    statusDiv.innerHTML = `<div class='alert alert-success'><strong>✅ สำเร็จ!</strong><br>${data.message}</div>`;
+                } else {
+                    statusDiv.innerHTML = `<div class='alert alert-danger'><strong>❌ ล้มเหลว!</strong><br>${data.error}</div>`;
+                }
+
+                // Render Debug Logs
+                if (data.logs && data.logs.length > 0) {
+                    debugLog.textContent = data.logs.join('\n');
+                } else {
+                    debugLog.textContent = 'No logs captured.';
+                }
+
+            } catch (err) {
+                statusDiv.innerHTML = `<div class='alert alert-danger'><strong>❌ ข้อผิดพลาดของระบบ:</strong> ไม่สามารถเชื่อมต่อ API ได้</div>`;
+                debugLog.textContent = err.toString();
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Send / Test';
+            }
+        });
+    </script>
+</body>
+
+</html>
