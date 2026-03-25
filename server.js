@@ -29,7 +29,9 @@ const transporter = nodemailer.createTransport({
 const app = express();
 const PORT = 3000;
 const SECRET_KEY = 'punya-clinic-super-secret-key';
-const USERS_FILE = path.join(__dirname, 'users.json');
+// รองรับ DATA_DIR environment variable เพื่อใช้กับ Fly.io Volume ป้องกันข้อมูลหาย
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
 
 app.use(cors());
 app.use(express.json());
@@ -210,8 +212,9 @@ app.post('/api/forgot-password', async (req, res) => {
         users[userIndex].resetTokenExpiry = tokenExpiry;
         saveUsers(users);
 
-        // สร้างลิงก์ให้ผู้ใช้กด
-        const resetLink = `http://localhost:${PORT}/reset-password.html?token=${resetToken}`;
+        // สร้างลิงก์ให้ผู้ใช้กด (รองรับ APP_URL สำหรับโปรดักชั่น)
+        const baseUrl = process.env.APP_URL || `http://localhost:${PORT}`;
+        const resetLink = `${baseUrl}/reset-password.html?token=${resetToken}`;
 
         // จัดเตรียม Subject สำหรับ Taximail
         let finalSubject = config.email.resetSubject || 'ลิงก์สำหรับตั้งรหัสผ่านใหม่ (Reset Password)';

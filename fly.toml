@@ -1,0 +1,23 @@
+app = "panya-watch-app" # เปลี่ยนชื่อแอปตรงนี้เป็นชื่อที่คุณต้องการ
+primary_region = "sin" # Singapore (ใกล้ไทยที่สุด)
+
+[build]
+  dockerfile = "Dockerfile"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+# หากต้องการให้ข้อมูลผู้ใช้ (users.json) ไม่หายไปตอนเซิร์ฟเวอร์รีสตาร์ท ต้องใช้ Volume
+# ให้รันคำสั่ง: fly volumes create panya_data --region sin --size 1 ก่อน deploy
+# แล้วเอาคอมเมนต์ # ด้านล่างออก 
+# [mounts]
+#   source = "panya_data"
+#   destination = "/app/data"
+
+# [env]
+#   DATA_DIR = "/app/data"
