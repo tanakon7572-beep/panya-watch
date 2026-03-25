@@ -1,57 +1,3 @@
-Hi, I'm trying to fix my Fly.io deployment. There's a build error on my Dockerfile.
-
-Please fix my Dockerfile for me to the best of your ability. And give me the updated version so I can paste in Fly.io web deployment UI.
-
-Error logs:
-
-```
-flyctl deploy --build-only --push -a panya-watch --image-label deployment-1554b6bdb9cb564ef6d7f56f2a01ca44 --config fly.toml
-Validating fly.toml
-[32m✓[0m Configuration is valid
-==> Verifying app config
---> Verified app config
-==> Building image
-Waiting for depot builder...
-
-==> Building image
-Waiting for depot builder...
-
-Error: failed to fetch an image or build from source: error building: ensure depot builder failed, please try again (status 403): We need your payment information to continue! Add a credit card or buy credit: https://fly.io/dashboard/487-9035e7bb-933b-4935-b72d-d6209aa68cba/billing
-Dockerfile failed to build error
-unsuccessful command 'flyctl deploy --build-only --push -a panya-watch --image-label deployment-1554b6bdb9cb564ef6d7f56f2a01ca44 --config fly.toml'
-```
-
-Dockerfile
-
-
-```
-FROM node:18-alpine
-
-# Set working directory
-WORKDIR /app
-
-# Copy package.json and package-lock.json
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy all files
-COPY . .
-
-# Expose the port the app runs on
-EXPOSE 3000
-
-# Start the application
-CMD ["npm", "start"]
-
-```
-
-
-fly.toml
-
-
-```
 app = "panya-watch-app" # เปลี่ยนชื่อแอปตรงนี้เป็นชื่อที่คุณต้องการ
 primary_region = "sin" # Singapore (ใกล้ไทยที่สุด)
 
@@ -66,15 +12,5 @@ primary_region = "sin" # Singapore (ใกล้ไทยที่สุด)
   min_machines_running = 0
   processes = ["app"]
 
-# หากต้องการให้ข้อมูลผู้ใช้ (users.json) ไม่หายไปตอนเซิร์ฟเวอร์รีสตาร์ท ต้องใช้ Volume
-# ให้รันคำสั่ง: fly volumes create panya_data --region sin --size 1 ก่อน deploy
-# แล้วเอาคอมเมนต์ # ด้านล่างออก 
-# [mounts]
-#   source = "panya_data"
-#   destination = "/app/data"
 
-# [env]
-#   DATA_DIR = "/app/data"
-
-```
 
